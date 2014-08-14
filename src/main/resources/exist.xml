@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<package xmlns="http://exist-db.org/ns/expath-pkg">
+    <jar>@app.name@-@app.version@.jar</jar>
+    <jar>im4java.jar</jar>
+    <java>
+        <namespace>http://expath.org/ns/im4xquery</namespace>
+        <class>org.expath.exist.im4xquery.im4XQueryModule</class>
+    </java>
+</package>
+
