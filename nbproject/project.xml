@@ -60,7 +60,7 @@ auxiliary.show.customizer.message=<message>
         <java-data xmlns="http://www.netbeans.org/ns/freeform-project-java/3">
             <compilation-unit>
                 <package-root>src/main/java</package-root>
-                <classpath mode="compile">build/lib/im4java.jar:build/lib/existdb-core.jar:build/lib/commons-io.jar</classpath>
+                <classpath mode="compile">build/lib/im4java.jar:build/lib/existdb-core.jar:build/lib/commons-io.jar:build/lib/log4j-1.2-api.jar:build/lib/log4j.jar</classpath>
                 <source-level>1.7</source-level>
             </compilation-unit>
             <compilation-unit>
