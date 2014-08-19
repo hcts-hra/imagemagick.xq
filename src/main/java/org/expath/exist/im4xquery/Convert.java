@@ -46,7 +46,7 @@ public class Convert {
         IMOperation iMOperation = new IMOperation();
         iMOperation.addImage("-");
         iMOperation.resize(maxWidth,maxHeight);
-        iMOperation.addImage("-");
+        iMOperation.addImage(format +  ":-");
         
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
         
