@@ -55,6 +55,7 @@ public class ScaleFunction extends BasicFunction {
 
     @Override
     public Sequence eval(Sequence[] args, Sequence contextSequence) throws XPathException {
+        LOGGER.debug("------------ ScaleFunction ---------------");        
         //was an image and a mime-type speficifed
         if (args[0].isEmpty() || args[2].isEmpty()) {
             return Sequence.EMPTY_SEQUENCE;
@@ -71,6 +72,9 @@ public class ScaleFunction extends BasicFunction {
             }
         }
 
+        LOGGER.debug("MAXHEIGHT: " + maxHeight);
+        LOGGER.debug("MAXWIDTH: " + maxWidth);
+        
         //get the mime-type
         String mimeType = args[2].itemAt(0).getStringValue();
         String formatName = mimeType.substring(mimeType.indexOf("/") + 1);

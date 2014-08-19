@@ -9,8 +9,7 @@ package org.expath.exist.im4xquery;
 import java.io.IOException;
 import java.io.InputStream;
 import org.apache.commons.io.output.ByteArrayOutputStream;
-import org.exist.xquery.Expression;
-import org.exist.xquery.XPathException;
+import org.apache.log4j.Logger;
 import org.im4java.core.ConvertCmd;
 import org.im4java.core.IM4JavaException;
 import org.im4java.core.IMOperation;
@@ -23,6 +22,8 @@ import org.im4java.process.Pipe;
  */
 
 public class Convert {
+    private static final Logger LOGGER = Logger.getLogger(Convert.class);
+    
     public static byte[] convert2ImageFormat(InputStream image, String format) throws IOException, InterruptedException, IM4JavaException {
         IMOperation iMOperation = new IMOperation();
         iMOperation.addImage("-");
@@ -45,7 +46,7 @@ public class Convert {
         IMOperation iMOperation = new IMOperation();
         iMOperation.addImage("-");
         iMOperation.resize(maxWidth,maxHeight);
-        iMOperation.addImage(format +  ":-");
+        iMOperation.addImage("-");
         
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
         
