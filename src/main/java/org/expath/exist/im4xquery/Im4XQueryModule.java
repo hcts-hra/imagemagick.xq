@@ -4,8 +4,6 @@ import java.util.List;
 import java.util.Map;
 import org.exist.xquery.AbstractInternalModule;
 import org.exist.xquery.FunctionDef;
-import org.exist.xquery.FunctionSignature;
-import org.exist.xquery.XQueryContext;
 
 /**
  *
@@ -22,7 +20,9 @@ public class Im4XQueryModule extends AbstractInternalModule {
         new FunctionDef(ConvertFunction.signature, ConvertFunction.class),
         new FunctionDef(Convert2PNGFunction.signature, Convert2PNGFunction.class),
         new FunctionDef(Convert2JPGFunction.signature, Convert2JPGFunction.class),
-        new FunctionDef(ScaleFunction.signature, ScaleFunction.class)
+        new FunctionDef(ScaleFunction.signature, ScaleFunction.class),
+        new FunctionDef(CropFunction.signature, CropFunction.class),
+        new FunctionDef(RotateFunction.signature, RotateFunction.class)
     };
 
     public Im4XQueryModule(Map<String, List<? extends Object>> parameters) {

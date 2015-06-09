@@ -42,10 +42,57 @@ public class Convert {
         return byteArrayOutputStream.toByteArray();
     }
     
-    public static byte[] resize(InputStream image, Integer maxHeight, Integer maxWidth, String format) throws IOException, InterruptedException, IM4JavaException {
+    protected static byte[] resize(InputStream image, Integer maxWidth, Integer maxHeight, String format, boolean keepAspectRatio) throws IOException, InterruptedException, IM4JavaException {
         IMOperation iMOperation = new IMOperation();
         iMOperation.addImage("-");
-        iMOperation.resize(maxWidth,maxHeight);
+        
+        if(!keepAspectRatio) {
+            iMOperation.resize(maxWidth, maxHeight, '!');
+        } else {
+            iMOperation.resize(maxWidth, maxHeight);
+        }
+        iMOperation.addImage(format +  ":-");
+        
+        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+        
+        Pipe pipeIn  = new Pipe(image, null);
+        Pipe pipeOut = new Pipe(null, byteArrayOutputStream);
+        
+        ConvertCmd convertCmd = new ConvertCmd();
+        convertCmd.setInputProvider(pipeIn);
+        convertCmd.setOutputConsumer(pipeOut);
+        convertCmd.run(iMOperation);
+
+        return byteArrayOutputStream.toByteArray();
+    }
+
+    static byte[] crop(InputStream image, int width, int height, int offsetX, int offsetY, String format, boolean repage) throws IOException, InterruptedException, IM4JavaException {
+        IMOperation iMOperation = new IMOperation();
+        iMOperation.addImage("-");
+        
+        iMOperation.crop(width, height, offsetX, offsetY);
+        if(repage) {
+            iMOperation.repage();
+        }
+        iMOperation.addImage(format +  ":-");
+        
+        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+        
+        Pipe pipeIn  = new Pipe(image, null);
+        Pipe pipeOut = new Pipe(null, byteArrayOutputStream);
+        
+        ConvertCmd convertCmd = new ConvertCmd();
+        convertCmd.setInputProvider(pipeIn);
+        convertCmd.setOutputConsumer(pipeOut);
+        convertCmd.run(iMOperation);
+
+        return byteArrayOutputStream.toByteArray();
+    }
+
+    static byte[] rotate(InputStream image, double degrees, String format) throws IOException, InterruptedException, IM4JavaException {
+        IMOperation iMOperation = new IMOperation();
+        iMOperation.addImage("-");
+        iMOperation.rotate(degrees);
         iMOperation.addImage(format +  ":-");
         
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();

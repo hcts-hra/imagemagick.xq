@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package org.expath.exist.im4xquery;
 
 import java.io.ByteArrayInputStream;
@@ -33,67 +28,74 @@ import org.im4java.core.IM4JavaException;
  * @version 1.0
  */
 
-public class ScaleFunction extends BasicFunction {
-    private static final Logger LOGGER = Logger.getLogger(ScaleFunction.class);
-    
-    private final static int MAXHEIGHT = 96;
-    private final static int MAXWIDTH = 96;
-    private final static boolean KEEPASPECTRATIO = true;
 
+public class CropFunction extends BasicFunction {
+    private static final org.apache.log4j.Logger LOGGER = Logger.getLogger(CropFunction.class);
+    
+    private final static int HEIGHT = 96;
+    private final static int WIDTH = 96;
+    private final static int OFFSETX = 0;
+    private final static int OFFSETY = 0;
+    private final static boolean REPAGE = true;
+    
+    public CropFunction(XQueryContext context, FunctionSignature signature) {
+        super(context, signature);
+    }
+ 
     public final static FunctionSignature signature = new FunctionSignature(
-            new QName("scale", Im4XQueryModule.NAMESPACE_URI, Im4XQueryModule.PREFIX),
-            "Scale the image image to a specified dimension.  If no dimensions are specified, then the default values are 'maxheight = 100' and 'maxwidth = 100'.",
+            new QName("crop", Im4XQueryModule.NAMESPACE_URI, Im4XQueryModule.PREFIX),
+            "Crop the image image to a specified dimension.  If no dimensions are specified, then the default values are 'maxheight = 100' and 'maxwidth = 100'.",
             new SequenceType[]{
                 new FunctionParameterSequenceType("image", Type.BASE64_BINARY, Cardinality.EXACTLY_ONE, "The image data"),
-                new FunctionParameterSequenceType("dimension", Type.INTEGER, Cardinality.ZERO_OR_MORE, "The maximum dimension of the scaled image. expressed in pixels (maxwidth, maxheight).  If empty, then the default values are 'maxwidth = 96' and 'maxheight = 96'."),
+                new FunctionParameterSequenceType("dimension", Type.INTEGER, Cardinality.ZERO_OR_MORE, "The dimension of the scaled image. expressed in pixels (width, height).  If empty, then the default values are 'width = 96' and 'height = 96'."),
+                new FunctionParameterSequenceType("offset", Type.INTEGER, Cardinality.ZERO_OR_MORE, "The offset (starting in the topleft corner) for the cropped image. (x,y) defaults to (0,0)."),
                 new FunctionParameterSequenceType("mimeType", Type.STRING, Cardinality.EXACTLY_ONE, "The mime-type of the image"),
-                new FunctionParameterSequenceType("keepAspectRatio", Type.BOOLEAN, Cardinality.ZERO_OR_ONE, "Keep Aspect Ratio, default to 'true'.")
+                new FunctionParameterSequenceType("repage", Type.BOOLEAN, Cardinality.ZERO_OR_ONE, "Repage the cropped of the image. Defaults to 'true'.")
             },
             new FunctionReturnSequenceType(Type.BASE64_BINARY, Cardinality.ZERO_OR_ONE, "the scaled image or an empty sequence if $image is invalid")
     );
-
-    public ScaleFunction(XQueryContext context, FunctionSignature signature) {
-        super(context, signature);
-    }
-
+    
     @Override
     public Sequence eval(Sequence[] args, Sequence contextSequence) throws XPathException {
-        LOGGER.debug("------------ ScaleFunction ---------------");        
+         LOGGER.debug("------------ CropFunction ---------------");        
         //was an image and a mime-type speficifed
-        if (args[0].isEmpty() || args[2].isEmpty()) {
+        if (args[0].isEmpty() || args[3].isEmpty()) {
             return Sequence.EMPTY_SEQUENCE;
         }
-
+        
         //get the maximum dimensions to scale to
-        int maxHeight = MAXHEIGHT;
-        int maxWidth = MAXWIDTH;
-        boolean keepAspectRatio = KEEPASPECTRATIO;
+        int height = HEIGHT;
+        int width = WIDTH;
+        int offsetX = OFFSETX;
+        int offsetY = OFFSETY;
+        boolean repage = REPAGE;
 
         if (!args[1].isEmpty()) {
-            maxWidth = ((IntegerValue) args[1].itemAt(0)).getInt();
+            width = ((IntegerValue) args[1].itemAt(0)).getInt();
             if (args[1].hasMany()) {
-                maxHeight = ((IntegerValue) args[1].itemAt(1)).getInt();
+                height = ((IntegerValue) args[1].itemAt(1)).getInt();
             }
         }
         
-        if (!args[3].isEmpty()) {
-            keepAspectRatio = ((BooleanValue) args[1].itemAt(0)).getValue();
+        if (!args[2].isEmpty()) {
+            offsetX = ((IntegerValue) args[2].itemAt(0)).getInt();
+            if (args[1].hasMany()) {
+                offsetY = ((IntegerValue) args[2].itemAt(1)).getInt();
+            }
+        }
+        
+        if (!args[4].isEmpty()) {
+            repage = ((BooleanValue) args[1].itemAt(0)).getValue();
         }
 
-        LOGGER.debug("MAXHEIGHT: " + maxHeight);
-        LOGGER.debug("MAXWIDTH: " + maxWidth);
-        
-        //get the mime-type
         String mimeType = args[2].itemAt(0).getStringValue();
         String formatName = mimeType.substring(mimeType.indexOf("/") + 1);
-
+        
         //TODO currently ONLY tested for JPEG!!!
         InputStream inputImage = null;
         byte[] outputImage = null;
         
         try {
-            
-
             //get the image data
             inputImage = ((BinaryValue) args[0].itemAt(0)).getInputStream();
 
@@ -101,9 +103,9 @@ public class ScaleFunction extends BasicFunction {
                 LOGGER.error("Unable to read image data!");
                 return Sequence.EMPTY_SEQUENCE;
             }
-
+            
             //scale the image
-            outputImage = Convert.resize(inputImage, maxWidth, maxHeight, formatName, keepAspectRatio);
+            outputImage = Convert.crop(inputImage, width, height, offsetX, offsetY, formatName, repage);
 
             if (outputImage == null) {
                 LOGGER.error("Unable to get output image data!");
@@ -116,4 +118,6 @@ public class ScaleFunction extends BasicFunction {
             throw new XPathException(this, e.getMessage());
         }
     }
+    
+   
 }

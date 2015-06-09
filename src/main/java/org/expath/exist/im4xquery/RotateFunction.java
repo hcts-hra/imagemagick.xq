@@ -18,10 +18,9 @@ import org.exist.xquery.XQueryContext;
 import org.exist.xquery.value.Base64BinaryValueType;
 import org.exist.xquery.value.BinaryValue;
 import org.exist.xquery.value.BinaryValueFromInputStream;
-import org.exist.xquery.value.BooleanValue;
+import org.exist.xquery.value.DoubleValue;
 import org.exist.xquery.value.FunctionParameterSequenceType;
 import org.exist.xquery.value.FunctionReturnSequenceType;
-import org.exist.xquery.value.IntegerValue;
 import org.exist.xquery.value.Sequence;
 import org.exist.xquery.value.SequenceType;
 import org.exist.xquery.value.Type;
@@ -33,26 +32,21 @@ import org.im4java.core.IM4JavaException;
  * @version 1.0
  */
 
-public class ScaleFunction extends BasicFunction {
-    private static final Logger LOGGER = Logger.getLogger(ScaleFunction.class);
+public class RotateFunction extends BasicFunction {
+    private static final Logger LOGGER = Logger.getLogger(RotateFunction.class);
     
-    private final static int MAXHEIGHT = 96;
-    private final static int MAXWIDTH = 96;
-    private final static boolean KEEPASPECTRATIO = true;
-
     public final static FunctionSignature signature = new FunctionSignature(
             new QName("scale", Im4XQueryModule.NAMESPACE_URI, Im4XQueryModule.PREFIX),
             "Scale the image image to a specified dimension.  If no dimensions are specified, then the default values are 'maxheight = 100' and 'maxwidth = 100'.",
             new SequenceType[]{
                 new FunctionParameterSequenceType("image", Type.BASE64_BINARY, Cardinality.EXACTLY_ONE, "The image data"),
-                new FunctionParameterSequenceType("dimension", Type.INTEGER, Cardinality.ZERO_OR_MORE, "The maximum dimension of the scaled image. expressed in pixels (maxwidth, maxheight).  If empty, then the default values are 'maxwidth = 96' and 'maxheight = 96'."),
-                new FunctionParameterSequenceType("mimeType", Type.STRING, Cardinality.EXACTLY_ONE, "The mime-type of the image"),
-                new FunctionParameterSequenceType("keepAspectRatio", Type.BOOLEAN, Cardinality.ZERO_OR_ONE, "Keep Aspect Ratio, default to 'true'.")
+                new FunctionParameterSequenceType("degrees", Type.DOUBLE, Cardinality.EXACTLY_ONE, "Degrees by which Image should be rotated."),
+                new FunctionParameterSequenceType("mimeType", Type.STRING, Cardinality.EXACTLY_ONE, "The mime-type of the image")
             },
             new FunctionReturnSequenceType(Type.BASE64_BINARY, Cardinality.ZERO_OR_ONE, "the scaled image or an empty sequence if $image is invalid")
     );
 
-    public ScaleFunction(XQueryContext context, FunctionSignature signature) {
+    public RotateFunction(XQueryContext context, FunctionSignature signature) {
         super(context, signature);
     }
 
@@ -60,28 +54,11 @@ public class ScaleFunction extends BasicFunction {
     public Sequence eval(Sequence[] args, Sequence contextSequence) throws XPathException {
         LOGGER.debug("------------ ScaleFunction ---------------");        
         //was an image and a mime-type speficifed
-        if (args[0].isEmpty() || args[2].isEmpty()) {
+        if (args[0].isEmpty() || args[1].isEmpty() || args[2].isEmpty()) {
             return Sequence.EMPTY_SEQUENCE;
         }
 
-        //get the maximum dimensions to scale to
-        int maxHeight = MAXHEIGHT;
-        int maxWidth = MAXWIDTH;
-        boolean keepAspectRatio = KEEPASPECTRATIO;
-
-        if (!args[1].isEmpty()) {
-            maxWidth = ((IntegerValue) args[1].itemAt(0)).getInt();
-            if (args[1].hasMany()) {
-                maxHeight = ((IntegerValue) args[1].itemAt(1)).getInt();
-            }
-        }
-        
-        if (!args[3].isEmpty()) {
-            keepAspectRatio = ((BooleanValue) args[1].itemAt(0)).getValue();
-        }
-
-        LOGGER.debug("MAXHEIGHT: " + maxHeight);
-        LOGGER.debug("MAXWIDTH: " + maxWidth);
+        double degrees = ((DoubleValue) args[1].itemAt(0)).getDouble();
         
         //get the mime-type
         String mimeType = args[2].itemAt(0).getStringValue();
@@ -103,7 +80,7 @@ public class ScaleFunction extends BasicFunction {
             }
 
             //scale the image
-            outputImage = Convert.resize(inputImage, maxWidth, maxHeight, formatName, keepAspectRatio);
+            outputImage = Convert.rotate(inputImage, degrees, formatName);
 
             if (outputImage == null) {
                 LOGGER.error("Unable to get output image data!");

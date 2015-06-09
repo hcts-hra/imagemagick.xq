@@ -5,7 +5,7 @@
         <conf name="runtime" description="Jars which are need at runtime"/>
     </configurations>
     <dependencies>
-        <dependency org="org.exist-db" name="existdb-core" rev="2.1" conf="compile->default"/>
+        <dependency org="org.exist-db" name="existdb-core" rev="2.2" conf="compile->default"/>
         <dependency org="org.im4java" name="im4java" rev="1.4.0" conf="compile->default;runtime->default"/>
     </dependencies>
 </ivy-module>

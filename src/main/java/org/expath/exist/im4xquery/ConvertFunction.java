@@ -24,9 +24,11 @@ import org.exist.xquery.value.Type;
 import org.im4java.core.ConvertCmd;
 import org.im4java.core.IMOperation;
 import org.im4java.process.Pipe;
+
 /**
  *
- * @author zwobit <tobias.krebs AT betterform.de>
+ * @author zwobit <tobias AT existsolutions.com>
+ * @version 1.0
  */
 
 

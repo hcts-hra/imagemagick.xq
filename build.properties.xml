@@ -2,7 +2,7 @@
 <root>
     <app>
         <name>im4xquery</name>
-        <version>0.0.2</version>
+        <version>0.0.3</version>
         <title>imagemagick.xq</title>
     </app>
 </root>
