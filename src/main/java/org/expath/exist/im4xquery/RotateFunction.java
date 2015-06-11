@@ -36,7 +36,7 @@ public class RotateFunction extends BasicFunction {
     private static final Logger LOGGER = Logger.getLogger(RotateFunction.class);
     
     public final static FunctionSignature signature = new FunctionSignature(
-            new QName("scale", Im4XQueryModule.NAMESPACE_URI, Im4XQueryModule.PREFIX),
+            new QName("rotate", Im4XQueryModule.NAMESPACE_URI, Im4XQueryModule.PREFIX),
             "Scale the image image to a specified dimension.  If no dimensions are specified, then the default values are 'maxheight = 100' and 'maxwidth = 100'.",
             new SequenceType[]{
                 new FunctionParameterSequenceType("image", Type.BASE64_BINARY, Cardinality.EXACTLY_ONE, "The image data"),
