@@ -85,7 +85,7 @@ public class CropFunction extends BasicFunction {
         }
         
         if (!args[4].isEmpty()) {
-            repage = ((BooleanValue) args[1].itemAt(0)).getValue();
+            repage = ((BooleanValue) args[4].itemAt(0)).getValue();
         }
 
         String mimeType = args[2].itemAt(0).getStringValue();

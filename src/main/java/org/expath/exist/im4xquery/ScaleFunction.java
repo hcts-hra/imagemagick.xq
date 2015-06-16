@@ -77,7 +77,7 @@ public class ScaleFunction extends BasicFunction {
         }
         
         if (!args[3].isEmpty()) {
-            keepAspectRatio = ((BooleanValue) args[1].itemAt(0)).getValue();
+            keepAspectRatio = ((BooleanValue) args[3].itemAt(0)).getValue();
         }
 
         LOGGER.debug("MAXHEIGHT: " + maxHeight);
