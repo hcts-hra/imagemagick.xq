@@ -66,14 +66,13 @@ public class Convert {
         return byteArrayOutputStream.toByteArray();
     }
 
-    static byte[] crop(InputStream image, int width, int height, int offsetX, int offsetY, String format, boolean repage) throws IOException, InterruptedException, IM4JavaException {
+    static byte[] crop(InputStream image, int width, int height, int offsetX, int offsetY, String format, int rwidth, int rheight) throws IOException, InterruptedException, IM4JavaException {
         IMOperation iMOperation = new IMOperation();
         iMOperation.addImage("-");
         
         iMOperation.crop(width, height, offsetX, offsetY);
-        if(repage) {
-            iMOperation.repage();
-        }
+        iMOperation.repage(rwidth, rheight);
+        
         iMOperation.addImage(format +  ":-");
         
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
@@ -85,7 +84,7 @@ public class Convert {
         convertCmd.setInputProvider(pipeIn);
         convertCmd.setOutputConsumer(pipeOut);
         convertCmd.run(iMOperation);
-
+        
         return byteArrayOutputStream.toByteArray();
     }
 

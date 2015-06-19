@@ -1,10 +1,8 @@
 package org.expath.exist.im4xquery;
 
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.io.InputStream;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.StringTokenizer;
 import org.apache.commons.io.output.ByteArrayOutputStream;
 import org.exist.dom.QName;
 import org.exist.xquery.BasicFunction;
@@ -22,6 +20,7 @@ import org.exist.xquery.value.SequenceType;
 import org.exist.xquery.value.StringValue;
 import org.exist.xquery.value.Type;
 import org.im4java.core.ConvertCmd;
+import org.im4java.core.IM4JavaException;
 import org.im4java.core.IMOperation;
 import org.im4java.process.Pipe;
 
@@ -59,10 +58,12 @@ public class ConvertFunction extends BasicFunction {
     
     
     public byte[] convertWithOptions(InputStream image, String options) {
+        String[] optionStrings = options.split(" ");
+         
         IMOperation iMOperation = new IMOperation();
         iMOperation.addImage("-");
-        iMOperation.addRawArgs(options);
-        
+        iMOperation.addRawArgs(optionStrings);
+        iMOperation.addImage(":-");
         
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
         
@@ -72,25 +73,13 @@ public class ConvertFunction extends BasicFunction {
         ConvertCmd convertCmd = new ConvertCmd();
         convertCmd.setInputProvider(pipeIn);
         convertCmd.setOutputConsumer(pipeOut);
+        
         try {
             convertCmd.run(iMOperation);
-        } catch (Exception exception) {
-            exception.printStackTrace();
-            return null;
+        } catch (IOException | InterruptedException | IM4JavaException exception) {
+            System.err.println(exception.getMessage());
         }
         
         return byteArrayOutputStream.toByteArray();
-    }
-    
-    private List<String> parseOptions(String options) {
-        List<String> optionsList = new LinkedList<String>();
-        
-        StringTokenizer stringTokenizer = new StringTokenizer(options, " ");
-        
-        while(stringTokenizer.hasMoreTokens()) {
-            optionsList.add(stringTokenizer.nextToken());
-        }
-        
-        return optionsList;
     }
 }

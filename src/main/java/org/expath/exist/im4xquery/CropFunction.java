@@ -13,7 +13,6 @@ import org.exist.xquery.XQueryContext;
 import org.exist.xquery.value.Base64BinaryValueType;
 import org.exist.xquery.value.BinaryValue;
 import org.exist.xquery.value.BinaryValueFromInputStream;
-import org.exist.xquery.value.BooleanValue;
 import org.exist.xquery.value.FunctionParameterSequenceType;
 import org.exist.xquery.value.FunctionReturnSequenceType;
 import org.exist.xquery.value.IntegerValue;
@@ -34,6 +33,8 @@ public class CropFunction extends BasicFunction {
     
     private final static int HEIGHT = 96;
     private final static int WIDTH = 96;
+    private final static int RHEIGHT = 0;
+    private final static int RWIDTH = 0;
     private final static int OFFSETX = 0;
     private final static int OFFSETY = 0;
     private final static boolean REPAGE = true;
@@ -50,7 +51,7 @@ public class CropFunction extends BasicFunction {
                 new FunctionParameterSequenceType("dimension", Type.INTEGER, Cardinality.ZERO_OR_MORE, "The dimension of the scaled image. expressed in pixels (width, height).  If empty, then the default values are 'width = 96' and 'height = 96'."),
                 new FunctionParameterSequenceType("offset", Type.INTEGER, Cardinality.ZERO_OR_MORE, "The offset (starting in the topleft corner) for the cropped image. (x,y) defaults to (0,0)."),
                 new FunctionParameterSequenceType("mimeType", Type.STRING, Cardinality.EXACTLY_ONE, "The mime-type of the image"),
-                new FunctionParameterSequenceType("repage", Type.BOOLEAN, Cardinality.ZERO_OR_ONE, "Repage the cropped of the image. Defaults to 'true'.")
+                new FunctionParameterSequenceType("repage", Type.INTEGER, Cardinality.ZERO_OR_MORE, "Repage the cropped of the image to (width, height) pixels. Defaults to (0,0)")
             },
             new FunctionReturnSequenceType(Type.BASE64_BINARY, Cardinality.ZERO_OR_ONE, "the scaled image or an empty sequence if $image is invalid")
     );
@@ -66,6 +67,8 @@ public class CropFunction extends BasicFunction {
         //get the maximum dimensions to scale to
         int height = HEIGHT;
         int width = WIDTH;
+        int rheight = RHEIGHT;
+        int rwidth = RWIDTH;
         int offsetX = OFFSETX;
         int offsetY = OFFSETY;
         boolean repage = REPAGE;
@@ -85,10 +88,13 @@ public class CropFunction extends BasicFunction {
         }
         
         if (!args[4].isEmpty()) {
-            repage = ((BooleanValue) args[4].itemAt(0)).getValue();
+            rwidth = ((IntegerValue) args[4].itemAt(0)).getInt();
+            if (args[4].hasMany()) {
+                rheight = ((IntegerValue) args[4].itemAt(1)).getInt();
+            }
         }
 
-        String mimeType = args[2].itemAt(0).getStringValue();
+        String mimeType = args[3].itemAt(0).getStringValue();
         String formatName = mimeType.substring(mimeType.indexOf("/") + 1);
         
         //TODO currently ONLY tested for JPEG!!!
@@ -105,7 +111,7 @@ public class CropFunction extends BasicFunction {
             }
             
             //scale the image
-            outputImage = Convert.crop(inputImage, width, height, offsetX, offsetY, formatName, repage);
+            outputImage = Convert.crop(inputImage, width, height, offsetX, offsetY, formatName, rwidth, rheight);
 
             if (outputImage == null) {
                 LOGGER.error("Unable to get output image data!");
